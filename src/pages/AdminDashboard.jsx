@@ -9,7 +9,7 @@ export default function AdminDashboard() {
   // Fetch all leaves from the backend
   const fetchLeaves = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/leaves/all", {
+      const res = await fetch("${import.meta.env.VITE_API_URL}/api/leaves/all", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -22,7 +22,7 @@ export default function AdminDashboard() {
   // Update status (Approved/Rejected)
   const updateStatus = async (id, status) => {
     try {
-      await fetch(`http://localhost:5000/api/leaves/update/${id}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/leaves/update/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -41,7 +41,7 @@ export default function AdminDashboard() {
     if (!window.confirm("Are you sure you want to permanently delete this record?")) return;
     
     try {
-      const res = await fetch(`http://localhost:5000/api/leaves/delete/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaves/delete/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

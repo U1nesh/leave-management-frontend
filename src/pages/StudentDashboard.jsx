@@ -13,7 +13,7 @@ export default function StudentDashboard() {
   const [toDate, setToDate] = useState("");
 
   const loadLeaves = async () => {
-    const res = await fetch(`http://localhost:5000/api/leaves/my-leaves`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaves/my-leaves`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     const data = await res.json();
@@ -27,7 +27,7 @@ export default function StudentDashboard() {
 
   const applyLeave = async (e) => {
     e.preventDefault();
-    const res = await fetch("http://localhost:5000/api/leaves/apply", {
+    const res = await fetch("${import.meta.env.VITE_API_URL}/api/leaves/apply", {
       method: "POST",
       headers: { 
         "Content-Type": "application/json",
@@ -48,7 +48,7 @@ export default function StudentDashboard() {
 
   const deleteLeave = async (id) => {
     if(!window.confirm("Delete this request?")) return;
-    await fetch(`http://localhost:5000/api/leaves/delete/${id}`, { 
+    await fetch(`${import.meta.env.VITE_API_URL}/api/leaves/delete/${id}`, { 
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
