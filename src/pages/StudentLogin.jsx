@@ -13,10 +13,9 @@ function StudentLogin() {
     setLoading(true);
 
     try {
-      // Clear any old session data first
       localStorage.clear();
 
-      const res = await axios.post("${import.meta.env.VITE_API_URL}/api/auth/login", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
         rollNo,
         password,
         role: "student",
@@ -32,6 +31,7 @@ function StudentLogin() {
       navigate("/student-dashboard");
     } catch (err) {
       console.error("Login Error:", err);
+      // Provides more specific error messages from the backend if available
       alert(err.response?.data?.message || "Invalid Roll Number or Password");
     } finally {
       setLoading(false);
@@ -46,7 +46,7 @@ function StudentLogin() {
           <div style={{ marginBottom: "15px" }}>
             <input
               type="text"
-              placeholder="Roll Number "
+              placeholder="Roll Number"
               value={rollNo}
               onChange={(e) => setRollNo(e.target.value)}
               style={{ padding: "10px", width: "250px", borderRadius: "5px", border: "1px solid #ddd" }}
@@ -66,7 +66,15 @@ function StudentLogin() {
           <button 
             type="submit" 
             disabled={loading}
-            style={{ padding: "10px 20px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", width: "100%" }}
+            style={{ 
+              padding: "10px 20px", 
+              backgroundColor: loading ? "#ccc" : "#007bff", 
+              color: "white", 
+              border: "none", 
+              borderRadius: "5px", 
+              cursor: loading ? "not-allowed" : "pointer", 
+              width: "100%" 
+            }}
           >
             {loading ? "Logging in..." : "Login"}
           </button>
