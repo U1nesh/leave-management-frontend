@@ -13,7 +13,6 @@ function AdminDashboard() {
 
   const fetchAllLeaves = async () => {
     try {
-      // FIXED: Backticks used for dynamic URL
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaves/all`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -26,52 +25,54 @@ function AdminDashboard() {
 
   const updateStatus = async (id, status) => {
     try {
-      // FIXED: Backticks used for dynamic URL
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaves/update/${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ status }),
       });
+      if (res.ok) fetchAllLeaves();
+    } catch (err) {
+      console.error("Update error:", err);
+    }
+  };
 
+  // NEW: DELETE LOGIC FOR ADMIN
+  const deleteLeave = async (id) => {
+    if (!window.confirm("Admin: Permanently delete this record?")) return;
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaves/delete/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (res.ok) {
-        alert(`Leave ${status} Successfully!`);
+        alert("Record removed.");
         fetchAllLeaves();
       }
     } catch (err) {
-      console.error("Update Status Error:", err);
+      console.error("Delete error:", err);
     }
   };
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      <h2>Admin Dashboard - Leave Requests</h2>
-      <table border="1" width="100%" style={{ marginTop: "20px", textAlign: "left", borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={{ backgroundColor: "#f2f2f2" }}>
-            <th style={{ padding: "10px" }}>Student Name</th>
-            <th style={{ padding: "10px" }}>Roll No</th>
-            <th style={{ padding: "10px" }}>Reason</th>
-            <th style={{ padding: "10px" }}>Status</th>
-            <th style={{ padding: "10px" }}>Actions</th>
-          </tr>
-        </thead>
+      <h2>Admin Dashboard</h2>
+      <table border="1" width="100%">
+        <thead><tr><th>Student</th><th>Roll No</th><th>Reason</th><th>Status</th><th>Actions</th></tr></thead>
         <tbody>
-          {leaves.map((leave) => (
-            <tr key={leave._id}>
-              <td style={{ padding: "10px" }}>{leave.studentId?.name || "N/A"}</td>
-              <td style={{ padding: "10px" }}>{leave.rollNo}</td>
-              <td style={{ padding: "10px" }}>{leave.reason}</td>
-              <td style={{ padding: "10px", fontWeight: "bold" }}>{leave.status}</td>
-              <td style={{ padding: "10px" }}>
-                {leave.status === "Pending" && (
+          {leaves.map((l) => (
+            <tr key={l._id}>
+              <td>{l.studentId?.name}</td>
+              <td>{l.rollNo}</td>
+              <td>{l.reason}</td>
+              <td>{l.status}</td>
+              <td>
+                {l.status === "Pending" && (
                   <>
-                    <button onClick={() => updateStatus(leave._id, "Approved")} style={{ backgroundColor: "green", color: "white", marginRight: "5px", cursor: "pointer" }}>Approve</button>
-                    <button onClick={() => updateStatus(leave._id, "Rejected")} style={{ backgroundColor: "red", color: "white", cursor: "pointer" }}>Reject</button>
+                    <button onClick={() => updateStatus(l._id, "Approved")}>Approve</button>
+                    <button onClick={() => updateStatus(l._id, "Rejected")}>Reject</button>
                   </>
                 )}
+                <button onClick={() => deleteLeave(l._id)} style={{ color: "red", marginLeft: "10px" }}>Delete Record</button>
               </td>
             </tr>
           ))}
@@ -80,5 +81,4 @@ function AdminDashboard() {
     </div>
   );
 }
-
 export default AdminDashboard;

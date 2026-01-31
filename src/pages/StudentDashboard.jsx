@@ -19,7 +19,6 @@ function StudentDashboard() {
 
   const loadLeaves = async () => {
     try {
-      // FIXED: Backticks used for dynamic URL
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaves/my-leaves`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -33,7 +32,6 @@ function StudentDashboard() {
   const applyLeave = async (e) => {
     e.preventDefault();
     try {
-      // FIXED: Backticks used for dynamic URL
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaves/apply`, {
         method: "POST",
         headers: {
@@ -42,63 +40,67 @@ function StudentDashboard() {
         },
         body: JSON.stringify({ reason, fromDate, toDate }),
       });
-
-      const data = await res.json();
       if (res.ok) {
         alert("Leave applied successfully!");
         setReason(""); setFromDate(""); setToDate("");
         loadLeaves();
-      } else {
-        alert(data.message || "Failed to apply leave");
       }
     } catch (err) {
-      console.error("Apply Leave Error:", err);
+      console.error("Apply error:", err);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.clear();
-    navigate("/");
+  // NEW: DELETE LOGIC FOR STUDENT
+  const deleteLeave = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this pending leave?")) return;
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leaves/delete/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        alert("Leave deleted successfully!");
+        loadLeaves();
+      } else {
+        const data = await res.json();
+        alert(data.message);
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   };
 
   return (
     <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2>Welcome, {userName}</h2>
-        <button onClick={handleLogout} style={{ padding: "8px 15px", cursor: "pointer" }}>Logout</button>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <h2>Welcome, {userName} ({rollNo})</h2>
+        <button onClick={() => { localStorage.clear(); navigate("/"); }}>Logout</button>
       </div>
-      <p>Roll Number: {rollNo}</p>
 
-      <div style={{ border: "1px solid #ddd", padding: "20px", borderRadius: "10px", marginTop: "20px" }}>
-        <h3>Apply for New Leave</h3>
+      <div style={{ border: "1px solid #ddd", padding: "20px", margin: "20px 0" }}>
+        <h3>Apply for Leave</h3>
         <form onSubmit={applyLeave}>
-          <input type="text" placeholder="Reason" value={reason} onChange={(e) => setReason(e.target.value)} required style={{ padding: "8px", marginRight: "10px" }} />
-          <label>From: </label>
-          <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required style={{ padding: "8px", marginRight: "10px" }} />
-          <label>To: </label>
-          <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} required style={{ padding: "8px", marginRight: "10px" }} />
-          <button type="submit" style={{ padding: "8px 20px", backgroundColor: "#007bff", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>Submit Application</button>
+          <input type="text" placeholder="Reason" value={reason} onChange={(e) => setReason(e.target.value)} required />
+          <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required />
+          <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} required />
+          <button type="submit">Submit</button>
         </form>
       </div>
 
-      <h3 style={{ marginTop: "30px" }}>My Leave History</h3>
-      <table border="1" width="100%" style={{ marginTop: "10px", textAlign: "left", borderCollapse: "collapse" }}>
-        <thead>
-          <tr style={{ backgroundColor: "#f2f2f2" }}>
-            <th style={{ padding: "10px" }}>Reason</th>
-            <th style={{ padding: "10px" }}>From</th>
-            <th style={{ padding: "10px" }}>To</th>
-            <th style={{ padding: "10px" }}>Status</th>
-          </tr>
-        </thead>
+      <h3>My History</h3>
+      <table border="1" width="100%">
+        <thead><tr><th>Reason</th><th>From</th><th>To</th><th>Status</th><th>Action</th></tr></thead>
         <tbody>
-          {leaves.map((leave) => (
-            <tr key={leave._id}>
-              <td style={{ padding: "10px" }}>{leave.reason}</td>
-              <td style={{ padding: "10px" }}>{new Date(leave.fromDate).toLocaleDateString()}</td>
-              <td style={{ padding: "10px" }}>{new Date(leave.toDate).toLocaleDateString()}</td>
-              <td style={{ padding: "10px", fontWeight: "bold", color: leave.status === "Approved" ? "green" : leave.status === "Rejected" ? "red" : "orange" }}>
-                {leave.status}
+          {leaves.map((l) => (
+            <tr key={l._id}>
+              <td>{l.reason}</td>
+              <td>{new Date(l.fromDate).toLocaleDateString()}</td>
+              <td>{new Date(l.toDate).toLocaleDateString()}</td>
+              <td>{l.status}</td>
+              <td>
+                {l.status === "Pending" && (
+                  <button onClick={() => deleteLeave(l._id)} style={{ color: "red" }}>Delete</button>
+                )}
               </td>
             </tr>
           ))}
@@ -107,5 +109,4 @@ function StudentDashboard() {
     </div>
   );
 }
-
 export default StudentDashboard;
