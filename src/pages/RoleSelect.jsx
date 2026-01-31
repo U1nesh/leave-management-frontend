@@ -39,7 +39,7 @@ const RoleSelect = () => {
 
   return (
     <div style={containerStyle}>
-      <h1 style={{ color: '#2c3e50', fontSize: '2.5rem', marginBottom: '10px' }}>Campus Leave Portal</h1>
+      <h1 style={{ color: '#2c3e50', fontSize: '2.5rem', marginBottom: '10px' }}>EEE Dept Leave Portal</h1>
       <p style={{ color: '#7f8c8d', fontSize: '1.1rem' }}>Welcome! Please choose your login type to manage leave requests.</p>
       
       <div style={cardContainer}>
